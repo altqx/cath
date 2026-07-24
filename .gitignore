@@ -1,3 +1,6 @@
+# Not part of this packaging repo
+/native/
+
 # Stock movie backups from reencode (multi‑GB; keep local only)
 /artifacts/movie-backup/
 
