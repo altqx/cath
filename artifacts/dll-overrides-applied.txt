@@ -1,4 +1,0 @@
-mode=h264
-winegstreamer=builtin
-mf*=builtin
-2026-07-23T23:19:18+07:00
