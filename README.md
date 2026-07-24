@@ -5,8 +5,6 @@ Scripts and docs to make [Catherine Classic](https://store.steampowered.com/app/
 Game install (unchanged):  
 `~/.local/share/Steam/steamapps/common/CatherineClassic`
 
-This repo: `~/Work/cath`
-
 ## Requirements
 
 - Steam with Catherine Classic installed (app id `893180`)
@@ -26,22 +24,22 @@ Prefix tweaks (`mf_catherine`, lavfilters, winegstreamer disabled) are **Proton-
 #    Do NOT use PROTON_USE_WINED3D=1
 
 # 2) Launch once so the Proton prefix exists, then:
-~/Work/cath/scripts/setup-prefix.sh
+./scripts/setup-prefix.sh
 
 # 3) Required on current Proton (fixes hang on Shakespeare quote → first FMV):
-~/Work/cath/scripts/reencode-movies.sh --only movie2   # quick unblock
-~/Work/cath/scripts/reencode-movies.sh                 # all story cutscenes
-~/Work/cath/scripts/apply-video-mode.sh h264           # builtin MF + winegstreamer
+./scripts/reencode-movies.sh --only movie2   # quick unblock
+./scripts/reencode-movies.sh                 # all story cutscenes
+./scripts/apply-video-mode.sh h264           # builtin MF + winegstreamer
 
-# 4) If it crashes right after the quote, you mixed native MF with H.264 —
-#    re-run: ~/Work/cath/scripts/apply-video-mode.sh h264
+# 4) If it crashes right after the quote, you mixed mf_catherine DLLs with H.264 —
+#    re-run: ./scripts/apply-video-mode.sh h264
 
 # 5) GE-Proton8-32 + stock WMV path instead:
-#    ~/Work/cath/scripts/restore-movies.sh
-#    ~/Work/cath/scripts/apply-video-mode.sh mf-wmv
+#    ./scripts/restore-movies.sh
+#    ./scripts/apply-video-mode.sh mf-wmv
 ```
 
-On current Proton, stock MPEG-4/WMA `.wmv` files often softlock after the Shakespeare quote. Re-encode replaces them with H.264+AAC (same `.wmv` names). **Do not** leave `mf_catherine` native MF overrides active with those files — that combo crashes; use `apply-video-mode.sh h264`.
+On current Proton, stock MPEG-4/WMA `.wmv` files often softlock after the Shakespeare quote. Re-encode replaces them with H.264+AAC (same `.wmv` names). **Do not** leave `mf_catherine` DLL overrides active with those files — that combo crashes; use `apply-video-mode.sh h264`.
 
 Your launch options currently wrap the game in `gamescope -W 2560 -H 1080 ...`. If video still crashes after `h264` mode, temporarily set launch options to just `%command%` to rule out gamescope.
 
@@ -60,13 +58,11 @@ Your launch options currently wrap the game in `gamescope -W 2560 -H 1080 ...`. 
 ## Layout
 
 ```
-~/Work/cath/
+.
   README.md
   vendor/mf_catherine.verb
   scripts/
   docs/formats.md
-  docs/native-port.md      # future true-native rewrite (not this phase)
-  native/README.md         # stub for Option 2
   artifacts/logs/
   artifacts/movie-backup/  # created by reencode-movies.sh
   artifacts/verification.md
@@ -77,7 +73,7 @@ Your launch options currently wrap the game in `gamescope -W 2560 -H 1080 ...`. 
 On Proton, **Depth of Field** and **Blur** often stick and leave the camera soft.
 
 ```bash
-~/Work/cath/scripts/fix-blurry-camera.sh
+./scripts/fix-blurry-camera.sh
 ```
 
 Or in-game: Options → Graphics → Depth of Field **Off**, Blur **Off**. Fully quit and relaunch.
@@ -86,9 +82,8 @@ Also avoid upscaling soft image: your launch options use `gamescope -W 2560 -H 1
 
 ## Undo
 
-
-- **Prefix only:** delete `~/.local/share/Steam/steamapps/compatdata/893180` (Steam will recreate). Re-run `setup-prefix.sh` after launching once.
-- **Movies:** `~/Work/cath/scripts/restore-movies.sh`
+- **Prefix only:** delete `~/.local/share/Steam/steamapps/compatdata/893180` (Steam will recreate). Re-run `./scripts/setup-prefix.sh` after launching once.
+- **Movies:** `./scripts/restore-movies.sh`
 
 ## Success criteria
 

@@ -1,6 +1,6 @@
 # Catherine Classic — Asset / Engine Notes
 
-Inventory from the Steam PC install for packaging work and a future native port.
+Inventory from the Steam PC install for packaging work.
 
 ## Binary
 

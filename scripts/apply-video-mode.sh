@@ -14,9 +14,9 @@ Usage: $(basename "$0") <h264|mf-wmv>
 
   h264    Current Proton (CachyOS/Experimental/GE): builtin MF + winegstreamer,
           for H.264+AAC files named .wmv (after reencode-movies.sh).
-          Fixes crash when native mf_catherine DLLs meet re-encoded videos.
+          Fixes crash when mf_catherine DLLs meet re-encoded videos.
 
-  mf-wmv  Stock MPEG-4/WMA .wmv + native MF DLLs + winegstreamer disabled.
+  mf-wmv  Stock MPEG-4/WMA .wmv + mf_catherine MF DLLs + winegstreamer disabled.
           Best with GE-Proton8-32 after setup-prefix.sh (no H.264 re-encode).
 EOF
 }
@@ -51,7 +51,7 @@ reg() {
 case "${MODE}" in
   h264)
     echo "=== mode: h264 (current Proton + re-encoded movies) ==="
-    # Do not force Win7 native MF — it crashes on MP4/H.264 content named .wmv
+    # Do not force Win7 mf_catherine MF — it crashes on MP4/H.264 content named .wmv
     for dll in mfplat.dll mf.dll mfplay.dll mfreadwrite.dll mferror.dll evr.dll dxva2.dll colorcnv.dll; do
       reg "*${dll}" "builtin"
       reg "${dll%.dll}" "builtin"
@@ -62,16 +62,17 @@ case "${MODE}" in
     echo "OK. Use Proton-CachyOS / Experimental / latest GE with re-encoded .wmv files."
     ;;
   mf-wmv)
-    echo "=== mode: mf-wmv (stock WMV + native MF) ==="
+    echo "=== mode: mf-wmv (stock WMV + mf_catherine MF) ==="
     for dll in colorcnv.dll mf.dll mferror.dll mfplat.dll mfplay.dll mfreadwrite.dll evr.dll dxva2.dll; do
+      # Wine DllOverrides value for Windows DLLs shipped with the prefix
       reg "*${dll}" "native"
       reg "${dll%.dll}" "native"
     done
     reg "winegstreamer" ""
-    printf 'mode=mf-wmv\nwinegstreamer=\nmf*=native\n%s\n' "$(date -Iseconds)" \
+    printf 'mode=mf-wmv\nwinegstreamer=\nmf*=mf_catherine\n%s\n' "$(date -Iseconds)" \
       > "${ROOT}/artifacts/dll-overrides-applied.txt"
     echo "OK. Prefer GE-Proton8-32 and stock (or restored) MPEG-4/WMA .wmv files."
-    echo "If you re-encoded, restore first: ${ROOT}/scripts/restore-movies.sh"
+    echo "If you re-encoded, restore first: ./scripts/restore-movies.sh"
     ;;
   *)
     usage

@@ -6,6 +6,7 @@ APP_ID=893180
 GAME_DIR="${HOME}/.local/share/Steam/steamapps/common/CatherineClassic"
 COMPAT="${HOME}/.local/share/Steam/steamapps/compatdata/${APP_ID}"
 TOOLS="${HOME}/.local/share/Steam/compatibilitytools.d"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 cat <<EOF
 Catherine Classic — Steam launch checklist
@@ -40,14 +41,15 @@ cat <<EOF
    - Do NOT use: PROTON_USE_WINED3D=1  (cutscene A/V desync)
 
 3) After first launch with your chosen Proton (prefix created):
-   ~/Work/cath/scripts/setup-prefix.sh
+   ${ROOT}/scripts/setup-prefix.sh
+   # or from repo root: ./scripts/setup-prefix.sh
 
    Re-run setup-prefix.sh after switching major Proton versions if video breaks again
    (same app id prefix is reused when possible).
 
 4) On current Proton, re-encode movies (required to pass Shakespeare quote):
-   ~/Work/cath/scripts/reencode-movies.sh --only movie2
-   ~/Work/cath/scripts/reencode-movies.sh
+   ./scripts/reencode-movies.sh --only movie2
+   ./scripts/reencode-movies.sh
 
 5) Verify:
    - New Game past Shakespeare quote into Golden Playhouse FMV

@@ -1,0 +1,5 @@
+/build/
+/vendor/gamebryo-ref/
+/artifacts/*.obj
+compile_commands.json
+.cache/
