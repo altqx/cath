@@ -26,5 +26,5 @@ echo "  Depth of Field = Off"
 echo "  Blur = Off"
 echo
 echo "Note: some in-engine shots use intentional focus pulls; with DoF off those stay sharp."
-echo "If the whole image is soft (not just focus), match in-game resolution to gamescope"
-echo "(you currently launch gamescope at 2560x1080 while the game is set to 1440x1080)."
+echo "If the whole image is soft (not just focus), match in-game resolution to any"
+echo "gamescope / compositor scale you use so the frame isn’t upscaled."

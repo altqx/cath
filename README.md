@@ -41,7 +41,7 @@ Prefix tweaks (`mf_catherine`, lavfilters, winegstreamer disabled) are **Proton-
 
 On current Proton, stock MPEG-4/WMA `.wmv` files often softlock after the Shakespeare quote. Re-encode replaces them with H.264+AAC (same `.wmv` names). **Do not** leave `mf_catherine` DLL overrides active with those files — that combo crashes; use `apply-video-mode.sh h264`.
 
-Your launch options currently wrap the game in `gamescope -W 2560 -H 1080 ...`. If video still crashes after `h264` mode, temporarily set launch options to just `%command%` to rule out gamescope.
+If video still crashes after `h264` mode and you use gamescope (or other wrappers), temporarily set launch options to just `%command%` to rule that out.
 
 ## Scripts
 
@@ -76,7 +76,7 @@ On Proton, **Depth of Field** and **Blur** often stick and leave the camera soft
 
 Or in-game: Options → Graphics → Depth of Field **Off**, Blur **Off**. Fully quit and relaunch.
 
-Also avoid upscaling soft image: your launch options use `gamescope -W 2560 -H 1080` while `AppSettings.ini` is `1440x1080`. Prefer matching both (e.g. set the game to 2560×1080, or run gamescope at 1440×1080).
+If you use gamescope (or similar), match its output size to the in-game resolution so the image isn’t soft from upscaling.
 
 ## Undo
 
