@@ -1,0 +1,97 @@
+# Catherine Classic — Playable Linux Packaging
+
+Scripts and docs to make [Catherine Classic](https://store.steampowered.com/app/893180/) playable under **current Proton** on Linux: fix the New Game softlock and grey cutscenes/VA caused by missing Media Foundation codecs.
+
+Game install (unchanged):  
+`~/.local/share/Steam/steamapps/common/CatherineClassic`
+
+This repo: `~/Work/cath`
+
+## Requirements
+
+- Steam with Catherine Classic installed (app id `893180`)
+- A **current** Proton build (preferred):
+  - Proton Experimental, latest GE-Proton, Proton-CachyOS Latest, or DW-Proton Latest
+  - Fallback: **GE-Proton8-32** if New Game still softlocks on a bleeding-edge build
+- `ffmpeg` / `ffprobe`
+- `protontricks` (installed by `scripts/setup-prefix.sh` if missing)
+
+Prefix tweaks (`mf_catherine`, lavfilters, winegstreamer disabled) are **Proton-version agnostic** — they live in `compatdata/893180` and apply whichever tool you force in Steam.
+
+## Quick start
+
+```bash
+# 1) Steam → Properties → Compatibility → force a current Proton
+#    (Experimental / latest GE / CachyOS / DW). Launch options: empty.
+#    Do NOT use PROTON_USE_WINED3D=1
+
+# 2) Launch once so the Proton prefix exists, then:
+~/Work/cath/scripts/setup-prefix.sh
+
+# 3) Required on current Proton (fixes hang on Shakespeare quote → first FMV):
+~/Work/cath/scripts/reencode-movies.sh --only movie2   # quick unblock
+~/Work/cath/scripts/reencode-movies.sh                 # all story cutscenes
+~/Work/cath/scripts/apply-video-mode.sh h264           # builtin MF + winegstreamer
+
+# 4) If it crashes right after the quote, you mixed native MF with H.264 —
+#    re-run: ~/Work/cath/scripts/apply-video-mode.sh h264
+
+# 5) GE-Proton8-32 + stock WMV path instead:
+#    ~/Work/cath/scripts/restore-movies.sh
+#    ~/Work/cath/scripts/apply-video-mode.sh mf-wmv
+```
+
+On current Proton, stock MPEG-4/WMA `.wmv` files often softlock after the Shakespeare quote. Re-encode replaces them with H.264+AAC (same `.wmv` names). **Do not** leave `mf_catherine` native MF overrides active with those files — that combo crashes; use `apply-video-mode.sh h264`.
+
+Your launch options currently wrap the game in `gamescope -W 2560 -H 1080 ...`. If video still crashes after `h264` mode, temporarily set launch options to just `%command%` to rule out gamescope.
+
+## Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/setup-prefix.sh` | `mf_catherine` + lavfilters + disable winegstreamer on prefix `893180` |
+| `scripts/reencode-movies.sh` | Backup + re-encode all `data/movie*` WMVs (fallback for latest Proton) |
+| `scripts/verify-codecs.sh` | Probe sample WMV codecs |
+| `scripts/steam-launch-notes.sh` | Print Steam settings checklist |
+| `scripts/restore-movies.sh` | Restore WMVs from `artifacts/movie-backup` |
+| `scripts/fix-blurry-camera.sh` | Turn off DoF/Blur (sticky soft camera on Proton) |
+| `scripts/apply-video-mode.sh` | Switch h264 vs mf-wmv DLL mode |
+
+## Layout
+
+```
+~/Work/cath/
+  README.md
+  vendor/mf_catherine.verb
+  scripts/
+  docs/formats.md
+  docs/native-port.md      # future true-native rewrite (not this phase)
+  native/README.md         # stub for Option 2
+  artifacts/logs/
+  artifacts/movie-backup/  # created by reencode-movies.sh
+  artifacts/verification.md
+```
+
+## Blurry camera / soft cutscenes
+
+On Proton, **Depth of Field** and **Blur** often stick and leave the camera soft.
+
+```bash
+~/Work/cath/scripts/fix-blurry-camera.sh
+```
+
+Or in-game: Options → Graphics → Depth of Field **Off**, Blur **Off**. Fully quit and relaunch.
+
+Also avoid upscaling soft image: your launch options use `gamescope -W 2560 -H 1080` while `AppSettings.ini` is `1440x1080`. Prefer matching both (e.g. set the game to 2560×1080, or run gamescope at 1440×1080).
+
+## Undo
+
+
+- **Prefix only:** delete `~/.local/share/Steam/steamapps/compatdata/893180` (Steam will recreate). Re-run `setup-prefix.sh` after launching once.
+- **Movies:** `~/Work/cath/scripts/restore-movies.sh`
+
+## Success criteria
+
+- New Game proceeds past the first cutscene without softlock on a **current** Proton.
+- Anime/story WMVs show video and audible audio (not grey/mute).
+- GE-Proton8-32 remains a documented fallback, not a hard requirement.

@@ -1,0 +1,68 @@
+# based on https://www.reddit.com/r/visualnovels/comments/lh10yb/getting_movies_to_work_in_visual_novels_on_linux/gqql6lk/
+
+w_metadata mf_catherine dlls \
+    title="Video playback workaround for Catherine Classic" \
+    media="download" \
+    installed_file1="${W_SYSTEM32_DLLS_WIN}/colorcnv.dll" \
+    installed_file2="${W_SYSTEM32_DLLS_WIN}/mf.dll" \
+    installed_file3="${W_SYSTEM32_DLLS_WIN}/mferror.dll" \
+    installed_file4="${W_SYSTEM32_DLLS_WIN}/mfplat.dll" \
+    installed_file5="${W_SYSTEM32_DLLS_WIN}/mfplay.dll" \
+    installed_file6="${W_SYSTEM32_DLLS_WIN}/mfreadwrite.dll" \
+    installed_file7="${W_SYSTEM32_DLLS_WIN}/evr.dll" \
+    installed_file8="${W_SYSTEM32_DLLS_WIN}/dxva2.dll" \
+    installed_file9="${W_SYSTEM32_DLLS_WIN}/wmadmod.dll" \
+    installed_file10="${W_SYSTEM32_DLLS_WIN}/mp4sdecd.dll"
+
+load_mf_catherine()
+{
+    # sha256sum of evr.dll 6.1.7601.17514: a379f7b8289db02fe336ee09d02c9fed9b407dd173aeecae98b5551fab9d1ceb
+    # sha256sum of dxva2.dll 6.1.7600.16385: 68e2367b9aa21c1bde7fea566d5f0dbdf1e246cb53e949622f8edc810aa95956
+    # sha256sum of WMADMOD.DLL 6.1.7601.17514: d51d105b4a421bae3c22ffe7eb66a9023d94ae2e55dcf2c20c973d88039a9093
+    # sha256sum of MP4SDECD.DLL 6.1.7600.16385: 6cb6517777880ddccffc0391fbb277ec0a215ceb147eab7569327b0aa90d09a2
+    # These dlls are identical at those from a Win7 VM: https://developer.microsoft.com/en-us/microsoft-edge/tools/vms/
+    # The rest are from mf-install: https://github.com/z0z0z/mf-install/pull/30#issue-347218465
+
+    w_download "https://github.com/z0z0z/mf-install/archive/refs/heads/new.zip"
+    w_download "https://web.archive.org/web/20210524005447/https://www.dllinstaller.com/downloads/dlls/evr.dll-7779.zip" de4012fe4b28e6ec6c1c5312b5b749110d45c2e2f60bd1d22e45613fbe15a838
+    w_download "https://web.archive.org/web/20210524005447/https://www.dllinstaller.com/downloads/dlls/dxva2.dll-7195.zip" 4d990cf3169a1f4f8f8f96464f5246370131b30ed6d5f027c1626df9d6a9bab7
+    w_download "https://web.archive.org/web/20210524005447/https://www.dllinstaller.com/downloads/dlls/wmadmod.dll-26052.zip" b833be4ca358637e275bebe51fb8b2af9d9e269fe50cdf33aeb57490bb68e22a
+    w_download "https://web.archive.org/web/20210524005447/https://www.dllinstaller.com/downloads/dlls/mp4sdecd.dll-14680.zip" e36ae6d3cba96161a2b9e84ac3ce86a49cccd1310222437339be09254505f4ee
+    w_try_unzip "${W_TMP}" "${W_CACHE}/${W_PACKAGE}/new.zip"
+    w_try_unzip "${W_TMP}/mf-install-new/syswow64/" "${W_CACHE}/${W_PACKAGE}/evr.dll-7779.zip"
+    w_try_unzip "${W_TMP}/mf-install-new/syswow64/" "${W_CACHE}/${W_PACKAGE}/dxva2.dll-7195.zip"
+    w_try_unzip "${W_TMP}" "${W_CACHE}/${W_PACKAGE}/wmadmod.dll-26052.zip"
+    w_try_unzip "${W_TMP}" "${W_CACHE}/${W_PACKAGE}/mp4sdecd.dll-14680.zip"
+    w_try cp -f "${W_TMP}/WMADMOD.DLL" "${W_SYSTEM32_DLLS}/wmadmod.dll"
+    w_try cp -f "${W_TMP}/MP4SDECD.DLL" "${W_SYSTEM32_DLLS}/mp4sdecd.dll"
+    w_try cp -f "${W_TMP}"/mf-install-new/syswow64/*[!c].dll "${W_SYSTEM32_DLLS}"
+    w_override_dlls native colorcnv.dll mf.dll mferror.dll mfplat.dll mfplay.dll mfreadwrite.dll evr.dll dxva2.dll
+    w_try_regedit32 "${W_TMP}/mf-install-new/wmf.reg"
+    w_try_regsvr32 colorcnv.dll
+ w_try_regsvr32 mp4sdecd.dll
+ w_try_regsvr32 wmadmod.dll
+ w_try_regsvr32 evr.dll
+    cat > "${W_TMP}"/asf.reg <<_EOF_
+REGEDIT4
+
+[HKEY_CLASSES_ROOT\\Wow6432Node\\CLSID\\{41457294-644c-4298-a28a-bd69f2c0cf3b}]
+@="ASF Byte Stream Handler"
+
+[HKEY_CLASSES_ROOT\\Wow6432Node\\CLSID\\{41457294-644c-4298-a28a-bd69f2c0cf3b}\\InprocServer32]
+@="C:\\\\windows\\\\system32\\\\mf.dll"
+"ThreadingModel"="Both"
+
+[HKEY_CLASSES_ROOT\\Wow6432Node\\MediaFoundation\\Transforms\\2eeb4adf-4578-4d10-bca7-bb955f56320a]
+@="WMAudio Decoder MFT"
+"InputTypes"=hex:61,75,64,73,00,00,10,00,80,00,00,aa,00,38,9b,71,61,01,00,00,\
+  00,00,10,00,80,00,00,aa,00,38,9b,71,61,75,64,73,00,00,10,00,80,00,00,aa,00,\
+  38,9b,71,62,01,00,00,00,00,10,00,80,00,00,aa,00,38,9b,71
+"OutputTypes"=hex:61,75,64,73,00,00,10,00,80,00,00,aa,00,38,9b,71,03,00,00,00,\
+  00,00,10,00,80,00,00,aa,00,38,9b,71,61,75,64,73,00,00,10,00,80,00,00,aa,00,\
+  38,9b,71,01,00,00,00,00,00,10,00,80,00,00,aa,00,38,9b,71
+
+[HKEY_CLASSES_ROOT\\Wow6432Node\\MediaFoundation\\Transforms\\Categories\\9ea73fb4-ef7a-4559-8d5d-719d8f0426c7\\2eeb4adf-4578-4d10-bca7-bb955f56320a]
+
+_EOF_
+    w_try_regedit64 "${W_TMP}"/asf.reg
+}
