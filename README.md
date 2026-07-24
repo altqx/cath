@@ -63,9 +63,7 @@ Your launch options currently wrap the game in `gamescope -W 2560 -H 1080 ...`. 
   vendor/mf_catherine.verb
   scripts/
   docs/formats.md
-  artifacts/logs/
-  artifacts/movie-backup/  # created by reencode-movies.sh
-  artifacts/verification.md
+  artifacts/               # local only (gitignored): logs, movie-backup, …
 ```
 
 ## Blurry camera / soft cutscenes
