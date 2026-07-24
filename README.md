@@ -14,7 +14,20 @@ Game install (unchanged):
 - `ffmpeg` / `ffprobe`
 - `protontricks` (installed by `scripts/setup-prefix.sh` if missing)
 
-Prefix tweaks (`mf_catherine`, lavfilters, winegstreamer disabled) are **Proton-version agnostic** — they live in `compatdata/893180` and apply whichever tool you force in Steam.
+Prefix tweaks live in `compatdata/893180` and apply whichever Proton you force in Steam.
+
+## How we did it
+
+Catherine’s 3D game usually runs under Proton; **cutscenes softlock or go grey** because they play `.wmv` files through **Windows Media Foundation**, and a stock Proton prefix cannot decode the shipped codecs (MPEG-4 + WMA).
+
+We fixed that without patching `Catherine.exe`:
+
+1. **Prefix** — `setup-prefix.sh` installs MF helpers (`mf_catherine.verb` + lavfilters) into the app’s Proton prefix.
+2. **Movies** — `reencode-movies.sh` backups stock WMVs, then rewrites them as **H.264 + AAC** while keeping the same `.wmv` filenames (the game hardcodes those paths).
+3. **Mode switch** — `apply-video-mode.sh h264` uses Proton’s **builtin** MF + winegstreamer for those re-encoded files.  
+   The older path (`mf-wmv` + stock codecs + GE-Proton8-32) also works, but **mixing** mf_catherine DLLs with H.264-in-`.wmv` **crashes**.
+
+Full write-up: [`docs/how-it-works.md`](docs/how-it-works.md).
 
 ## Quick start
 
@@ -62,6 +75,7 @@ If video still crashes after `h264` mode and you use gamescope (or other wrapper
   README.md
   vendor/mf_catherine.verb
   scripts/
+  docs/how-it-works.md     # why cutscenes break + how the fix works
   docs/formats.md
   artifacts/               # local only (gitignored): logs, movie-backup, …
 ```
